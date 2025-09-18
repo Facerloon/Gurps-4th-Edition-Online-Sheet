@@ -2,6 +2,7 @@ import { Character } from '@/types/character';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { calculateBasicSpeed } from '@/utils/gurpsCalculations';
 
 interface AttributesProps {
   character: Character;
@@ -93,11 +94,16 @@ export const Attributes = ({ character, updateCharacter }: AttributesProps) => {
     HT: (character.HT - 10) * 10
   };
 
+  const baseBasicSpeed = calculateBasicSpeed(character.DX, character.HT);
+  const baseBasicMove = Math.floor(baseBasicSpeed);
+
   const secondaryCosts = {
     HP: (character.HP - character.ST) * 2,
     Will: (character.Will - character.IQ) * 5,
     Per: (character.Per - character.IQ) * 5,
-    FP: (character.FP - character.HT) * 3
+    FP: (character.FP - character.HT) * 3,
+    basicSpeed: Math.round((character.basicSpeed - baseBasicSpeed) * 20),
+    basicMove: (character.basicMove - baseBasicMove) * 5
   };
 
   return (
@@ -172,6 +178,46 @@ export const Attributes = ({ character, updateCharacter }: AttributesProps) => {
               baseValue={character.HT}
               cost={secondaryCosts.FP}
             />
+          </div>
+        </div>
+
+        {/* Movement & Speed */}
+        <div>
+          <h3 className="text-lg font-semibold text-card-foreground mb-3">Movement & Speed</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-card-foreground">Basic Speed</Label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  step="0.25"
+                  value={character.basicSpeed}
+                  onChange={(e) => updateCharacter({ basicSpeed: parseFloat(e.target.value) || baseBasicSpeed })}
+                  className="bg-input border-border focus:ring-accent text-center"
+                />
+                {character.basicSpeed !== baseBasicSpeed && (
+                  <div className="text-xs text-accent mt-1 text-center">
+                    {character.basicSpeed > baseBasicSpeed ? '+' : ''}{(character.basicSpeed - baseBasicSpeed).toFixed(2)} ({secondaryCosts.basicSpeed > 0 ? '+' : ''}{secondaryCosts.basicSpeed} pts)
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-card-foreground">Basic Move</Label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  value={character.basicMove}
+                  onChange={(e) => updateCharacter({ basicMove: parseInt(e.target.value) || baseBasicMove })}
+                  className="bg-input border-border focus:ring-accent text-center"
+                />
+                {character.basicMove !== baseBasicMove && (
+                  <div className="text-xs text-accent mt-1 text-center">
+                    {character.basicMove > baseBasicMove ? '+' : ''}{character.basicMove - baseBasicMove} ({secondaryCosts.basicMove > 0 ? '+' : ''}{secondaryCosts.basicMove} pts)
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 

@@ -1,15 +1,21 @@
 import { Character } from '@/types/character';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { calculateDodge, calculateBasicMove } from '@/utils/gurpsCalculations';
 
 interface CombatStatsProps {
   character: Character;
+  updateCharacter: (updates: Partial<Character>) => void;
 }
 
-export const CombatStats = ({ character }: CombatStatsProps) => {
+export const CombatStats = ({ character, updateCharacter }: CombatStatsProps) => {
+  const baseDodge = Math.floor(character.basicSpeed) + 3;
   const dodge = calculateDodge(character);
   const basicMove = calculateBasicMove(character);
-  const parry = Math.floor(character.DX / 2) + 3; // Base parry, will vary by weapon
+  const baseParry = Math.floor(character.DX / 2) + 3;
+  const parry = baseParry + (character.parryModifier || 0);
+  const block = 10 + (character.blockModifier || 0); // Base block value
 
   const StatDisplay = ({ label, value, description }: { 
     label: string; 
@@ -64,24 +70,51 @@ export const CombatStats = ({ character }: CombatStatsProps) => {
         <div>
           <h3 className="text-lg font-semibold text-card-foreground mb-3">Active Defenses</h3>
           <div className="grid grid-cols-3 gap-4">
-            <StatDisplay
-              label="Dodge"
-              value={dodge}
-              description={`DX/2+3 - Enc`}
-            />
-            <StatDisplay
-              label="Parry"
-              value={`${parry}*`}
-              description="Weapon skill/2+3"
-            />
-            <StatDisplay
-              label="Block"
-              value="—"
-              description="Shield skill/2+3"
-            />
+            <div className="text-center p-3 bg-muted/30 rounded-lg border border-border/50">
+              <div className="text-sm text-muted-foreground font-medium">Dodge</div>
+              <div className="text-2xl font-bold text-accent mt-1">{dodge}</div>
+              <div className="text-xs text-muted-foreground mt-1">BS+3-Enc</div>
+              <div className="mt-2">
+                <Label className="text-xs">Custom Modifier</Label>
+                <Input
+                  type="number"
+                  value={character.dodgeModifier || 0}
+                  onChange={(e) => updateCharacter({ dodgeModifier: parseInt(e.target.value) || 0 })}
+                  className="w-16 h-6 text-xs text-center mx-auto mt-1"
+                />
+              </div>
+            </div>
+            <div className="text-center p-3 bg-muted/30 rounded-lg border border-border/50">
+              <div className="text-sm text-muted-foreground font-medium">Parry</div>
+              <div className="text-2xl font-bold text-accent mt-1">{parry}*</div>
+              <div className="text-xs text-muted-foreground mt-1">Skill/2+3</div>
+              <div className="mt-2">
+                <Label className="text-xs">Custom Modifier</Label>
+                <Input
+                  type="number"
+                  value={character.parryModifier || 0}
+                  onChange={(e) => updateCharacter({ parryModifier: parseInt(e.target.value) || 0 })}
+                  className="w-16 h-6 text-xs text-center mx-auto mt-1"
+                />
+              </div>
+            </div>
+            <div className="text-center p-3 bg-muted/30 rounded-lg border border-border/50">
+              <div className="text-sm text-muted-foreground font-medium">Block</div>
+              <div className="text-2xl font-bold text-accent mt-1">{block}</div>
+              <div className="text-xs text-muted-foreground mt-1">Skill/2+3</div>
+              <div className="mt-2">
+                <Label className="text-xs">Custom Modifier</Label>
+                <Input
+                  type="number"
+                  value={character.blockModifier || 0}
+                  onChange={(e) => updateCharacter({ blockModifier: parseInt(e.target.value) || 0 })}
+                  className="w-16 h-6 text-xs text-center mx-auto mt-1"
+                />
+              </div>
+            </div>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            * Base parry. Actual parry depends on weapon skill.
+            * Base values. Actual defense depends on weapon/shield skill.
           </p>
         </div>
 

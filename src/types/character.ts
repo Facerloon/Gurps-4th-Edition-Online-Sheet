@@ -23,10 +23,19 @@ export interface Character {
   Per: number;    // Perception = IQ + modifiers
   FP: number;     // Fatigue Points = HT + modifiers
 
+  // Movement & Speed
+  basicSpeed: number;  // (DX + HT) / 4
+  basicMove: number;   // Basic Speed (rounded down) + modifiers
+
   // Combat Stats
   basicLift: number;
   damageThrust: string;
   damageSwing: string;
+  
+  // Defense Modifiers
+  dodgeModifier: number;
+  parryModifier: number;
+  blockModifier: number;
   
   // Encumbrance
   currentWeight: number;

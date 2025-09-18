@@ -5,6 +5,11 @@ export const calculateBasicLift = (ST: number): number => {
   return Math.floor((ST * ST) / 5);
 };
 
+// Calculate Basic Speed from DX and HT
+export const calculateBasicSpeed = (DX: number, HT: number): number => {
+  return Math.floor(((DX + HT) / 4) * 4) / 4; // Round down to nearest 0.25
+};
+
 // Calculate damage from ST
 export const calculateDamage = (ST: number) => {
   const thrust = Math.floor(ST / 6);
@@ -88,14 +93,14 @@ export const calculateEncumbrance = (character: Character) => {
 
 // Calculate dodge score
 export const calculateDodge = (character: Character): number => {
-  const baseDodge = Math.floor(character.DX / 2) + 3;
+  const baseDodge = Math.floor(character.basicSpeed) + 3;
   const encumbrance = calculateEncumbrance(character);
-  return baseDodge + encumbrance.dodgePenalty;
+  return baseDodge + encumbrance.dodgePenalty + (character.dodgeModifier || 0);
 };
 
 // Calculate basic move
 export const calculateBasicMove = (character: Character): number => {
-  const baseMove = Math.floor((character.DX + character.HT) / 4);
+  const baseMove = Math.floor(character.basicSpeed) + (character.basicMove - Math.floor(character.basicSpeed));
   const encumbrance = calculateEncumbrance(character);
   return Math.floor(baseMove * (encumbrance.multiplier === 1 ? 1 : 
     encumbrance.multiplier === 2 ? 0.8 :
@@ -113,11 +118,16 @@ export const calculateTotalPoints = (character: Character): number => {
     (character.HT - 10) * 10;
   
   // Secondary characteristic costs
+  const baseBasicSpeed = calculateBasicSpeed(character.DX, character.HT);
+  const baseBasicMove = Math.floor(baseBasicSpeed);
+  
   const secondaryCost = 
     (character.HP - character.ST) * 2 +
     (character.Will - character.IQ) * 5 +
     (character.Per - character.IQ) * 5 +
-    (character.FP - character.HT) * 3;
+    (character.FP - character.HT) * 3 +
+    Math.round((character.basicSpeed - baseBasicSpeed) * 20) + // 5 pts per 0.25
+    (character.basicMove - baseBasicMove) * 5;
   
   // Advantages cost
   const advantagesCost = character.advantages.reduce((sum, adv) => {

@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trash2, Plus } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Trash2, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface AdvantagesSectionProps {
@@ -17,6 +18,8 @@ interface AdvantagesSectionProps {
 
 export const AdvantagesSection = ({ character, updateCharacter, predefinedOptions }: AdvantagesSectionProps) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [allExpanded, setAllExpanded] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [newAdvantage, setNewAdvantage] = useState<Partial<CharacterAdvantage>>({
     name: '',
     cost: 0,
@@ -71,6 +74,20 @@ export const AdvantagesSection = ({ character, updateCharacter, predefinedOption
 
   const totalCost = character.advantages.reduce((sum, adv) => sum + (adv.cost * (adv.level || 1)), 0);
 
+  const toggleAllExpanded = () => {
+    const newState = !allExpanded;
+    setAllExpanded(newState);
+    const newExpandedItems: Record<string, boolean> = {};
+    character.advantages.forEach(adv => {
+      newExpandedItems[adv.id] = newState;
+    });
+    setExpandedItems(newExpandedItems);
+  };
+
+  const toggleItemExpanded = (id: string) => {
+    setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   return (
     <Card className="gradient-card shadow-card border-border/50">
       <CardHeader>
@@ -79,8 +96,30 @@ export const AdvantagesSection = ({ character, updateCharacter, predefinedOption
             <span className="text-2xl">✨</span>
             Advantages & Perks
           </div>
-          <div className="text-sm font-normal">
-            Total: <span className="text-accent font-bold">{totalCost}</span> pts
+          <div className="flex items-center gap-2">
+            {character.advantages.length > 0 && (
+              <Button
+                onClick={toggleAllExpanded}
+                variant="ghost"
+                size="sm"
+                className="text-xs"
+              >
+                {allExpanded ? (
+                  <>
+                    <ChevronUp size={14} className="mr-1" />
+                    Collapse All
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={14} className="mr-1" />
+                    Expand All
+                  </>
+                )}
+              </Button>
+            )}
+            <div className="text-sm font-normal">
+              Total: <span className="text-accent font-bold">{totalCost}</span> pts
+            </div>
           </div>
         </CardTitle>
       </CardHeader>
@@ -92,59 +131,70 @@ export const AdvantagesSection = ({ character, updateCharacter, predefinedOption
         )}
 
         {character.advantages.map((advantage) => (
-          <div key={advantage.id} className="p-4 bg-muted/20 rounded-lg border border-border/30">
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
-                <Input
-                  value={advantage.name}
-                  onChange={(e) => updateAdvantage(advantage.id, { name: e.target.value })}
-                  placeholder="Advantage name"
-                  className="font-medium"
-                />
-                <Input
-                  type="number"
-                  value={advantage.cost}
-                  onChange={(e) => updateAdvantage(advantage.id, { cost: parseInt(e.target.value) || 0 })}
-                  placeholder="Cost per level"
-                />
-                <div className="flex gap-2">
+          <Collapsible key={advantage.id} open={expandedItems[advantage.id] || false} onOpenChange={() => toggleItemExpanded(advantage.id)}>
+            <div className="p-4 bg-muted/20 rounded-lg border border-border/30">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <Input
+                    value={advantage.name}
+                    onChange={(e) => updateAdvantage(advantage.id, { name: e.target.value })}
+                    placeholder="Advantage name"
+                    className="font-medium"
+                  />
                   <Input
                     type="number"
-                    value={advantage.level || 1}
-                    onChange={(e) => updateAdvantage(advantage.id, { level: parseInt(e.target.value) || 1 })}
-                    placeholder="Level"
-                    min="1"
+                    value={advantage.cost}
+                    onChange={(e) => updateAdvantage(advantage.id, { cost: parseInt(e.target.value) || 0 })}
+                    placeholder="Cost per level"
                   />
-                  <Button
-                    onClick={() => removeAdvantage(advantage.id)}
-                    variant="outline"
-                    size="sm"
-                    className="text-destructive hover:text-destructive-foreground hover:bg-destructive"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      value={advantage.level || 1}
+                      onChange={(e) => updateAdvantage(advantage.id, { level: parseInt(e.target.value) || 1 })}
+                      placeholder="Level"
+                      min="1"
+                    />
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        {expandedItems[advantage.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <Button
+                      onClick={() => removeAdvantage(advantage.id)}
+                      variant="outline"
+                      size="sm"
+                      className="text-destructive hover:text-destructive-foreground hover:bg-destructive"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
                 </div>
               </div>
+              
+              <div className="text-right mb-2">
+                <span className="text-sm text-accent font-medium">
+                  Total Cost: {advantage.cost * (advantage.level || 1)} pts
+                </span>
+              </div>
+
+              <CollapsibleContent>
+                <div className="space-y-2">
+                  {advantage.description && (
+                    <p className="text-sm text-muted-foreground">{advantage.description}</p>
+                  )}
+                  
+                  <Textarea
+                    value={advantage.notes || ''}
+                    onChange={(e) => updateAdvantage(advantage.id, { notes: e.target.value })}
+                    placeholder="Personal notes..."
+                    className="resize-none text-sm"
+                    rows={2}
+                  />
+                </div>
+              </CollapsibleContent>
             </div>
-            
-            {advantage.description && (
-              <p className="text-sm text-muted-foreground mb-2">{advantage.description}</p>
-            )}
-            
-            <Textarea
-              value={advantage.notes || ''}
-              onChange={(e) => updateAdvantage(advantage.id, { notes: e.target.value })}
-              placeholder="Personal notes..."
-              className="resize-none text-sm"
-              rows={2}
-            />
-            
-            <div className="mt-2 text-right">
-              <span className="text-sm text-accent font-medium">
-                Total Cost: {advantage.cost * (advantage.level || 1)} pts
-              </span>
-            </div>
-          </div>
+          </Collapsible>
         ))}
 
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>

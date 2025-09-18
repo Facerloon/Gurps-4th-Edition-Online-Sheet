@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trash2, Plus } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Trash2, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface DisadvantagesSectionProps {
@@ -17,6 +18,8 @@ interface DisadvantagesSectionProps {
 
 export const DisadvantagesSection = ({ character, updateCharacter, predefinedOptions }: DisadvantagesSectionProps) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [allExpanded, setAllExpanded] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [newDisadvantage, setNewDisadvantage] = useState<Partial<CharacterDisadvantage>>({
     name: '',
     cost: 0,
@@ -68,6 +71,20 @@ export const DisadvantagesSection = ({ character, updateCharacter, predefinedOpt
 
   const totalCost = character.disadvantages.reduce((sum, dis) => sum + dis.cost, 0);
 
+  const toggleAllExpanded = () => {
+    const newState = !allExpanded;
+    setAllExpanded(newState);
+    const newExpandedItems: Record<string, boolean> = {};
+    character.disadvantages.forEach(dis => {
+      newExpandedItems[dis.id] = newState;
+    });
+    setExpandedItems(newExpandedItems);
+  };
+
+  const toggleItemExpanded = (id: string) => {
+    setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   return (
     <Card className="gradient-card shadow-card border-border/50">
       <CardHeader>
@@ -76,8 +93,30 @@ export const DisadvantagesSection = ({ character, updateCharacter, predefinedOpt
             <span className="text-2xl">⚠️</span>
             Disadvantages & Quirks
           </div>
-          <div className="text-sm font-normal">
-            Total: <span className="text-destructive font-bold">{totalCost}</span> pts
+          <div className="flex items-center gap-2">
+            {character.disadvantages.length > 0 && (
+              <Button
+                onClick={toggleAllExpanded}
+                variant="ghost"
+                size="sm"
+                className="text-xs"
+              >
+                {allExpanded ? (
+                  <>
+                    <ChevronUp size={14} className="mr-1" />
+                    Collapse All
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={14} className="mr-1" />
+                    Expand All
+                  </>
+                )}
+              </Button>
+            )}
+            <div className="text-sm font-normal">
+              Total: <span className="text-destructive font-bold">{totalCost}</span> pts
+            </div>
           </div>
         </CardTitle>
       </CardHeader>
@@ -89,52 +128,63 @@ export const DisadvantagesSection = ({ character, updateCharacter, predefinedOpt
         )}
 
         {character.disadvantages.map((disadvantage) => (
-          <div key={disadvantage.id} className="p-4 bg-muted/20 rounded-lg border border-border/30">
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
-                <Input
-                  value={disadvantage.name}
-                  onChange={(e) => updateDisadvantage(disadvantage.id, { name: e.target.value })}
-                  placeholder="Disadvantage name"
-                  className="font-medium"
-                />
-                <div className="flex gap-2">
+          <Collapsible key={disadvantage.id} open={expandedItems[disadvantage.id] || false} onOpenChange={() => toggleItemExpanded(disadvantage.id)}>
+            <div className="p-4 bg-muted/20 rounded-lg border border-border/30">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
                   <Input
-                    type="number"
-                    value={disadvantage.cost}
-                    onChange={(e) => updateDisadvantage(disadvantage.id, { cost: parseInt(e.target.value) || 0 })}
-                    placeholder="Cost (negative)"
+                    value={disadvantage.name}
+                    onChange={(e) => updateDisadvantage(disadvantage.id, { name: e.target.value })}
+                    placeholder="Disadvantage name"
+                    className="font-medium"
                   />
-                  <Button
-                    onClick={() => removeDisadvantage(disadvantage.id)}
-                    variant="outline"
-                    size="sm"
-                    className="text-destructive hover:text-destructive-foreground hover:bg-destructive"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      value={disadvantage.cost}
+                      onChange={(e) => updateDisadvantage(disadvantage.id, { cost: parseInt(e.target.value) || 0 })}
+                      placeholder="Cost (negative)"
+                    />
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        {expandedItems[disadvantage.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <Button
+                      onClick={() => removeDisadvantage(disadvantage.id)}
+                      variant="outline"
+                      size="sm"
+                      className="text-destructive hover:text-destructive-foreground hover:bg-destructive"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
                 </div>
               </div>
+              
+              <div className="text-right mb-2">
+                <span className="text-sm text-destructive font-medium">
+                  Cost: {disadvantage.cost} pts
+                </span>
+              </div>
+
+              <CollapsibleContent>
+                <div className="space-y-2">
+                  {disadvantage.description && (
+                    <p className="text-sm text-muted-foreground">{disadvantage.description}</p>
+                  )}
+                  
+                  <Textarea
+                    value={disadvantage.notes || ''}
+                    onChange={(e) => updateDisadvantage(disadvantage.id, { notes: e.target.value })}
+                    placeholder="Personal notes..."
+                    className="resize-none text-sm"
+                    rows={2}
+                  />
+                </div>
+              </CollapsibleContent>
             </div>
-            
-            {disadvantage.description && (
-              <p className="text-sm text-muted-foreground mb-2">{disadvantage.description}</p>
-            )}
-            
-            <Textarea
-              value={disadvantage.notes || ''}
-              onChange={(e) => updateDisadvantage(disadvantage.id, { notes: e.target.value })}
-              placeholder="Personal notes..."
-              className="resize-none text-sm"
-              rows={2}
-            />
-            
-            <div className="mt-2 text-right">
-              <span className="text-sm text-destructive font-medium">
-                Cost: {disadvantage.cost} pts
-              </span>
-            </div>
-          </div>
+          </Collapsible>
         ))}
 
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>

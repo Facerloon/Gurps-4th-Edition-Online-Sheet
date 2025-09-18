@@ -7,7 +7,7 @@ import { AdvantagesSection } from './character/AdvantagesSection';
 import { DisadvantagesSection } from './character/DisadvantagesSection';
 import { SkillsSection } from './character/SkillsSection';
 import { EncumbranceSection } from './character/EncumbranceSection';
-import { calculateBasicLift, calculateDamage, calculateTotalPoints } from '@/utils/gurpsCalculations';
+import { calculateBasicLift, calculateDamage, calculateTotalPoints, calculateBasicSpeed } from '@/utils/gurpsCalculations';
 
 const defaultCharacter: Character = {
   name: '',
@@ -28,9 +28,14 @@ const defaultCharacter: Character = {
   Will: 10,
   Per: 10,
   FP: 10,
+  basicSpeed: 5.0,
+  basicMove: 5,
   basicLift: 20,
   damageThrust: '1d-2',
   damageSwing: '1d',
+  dodgeModifier: 0,
+  parryModifier: 0,
+  blockModifier: 0,
   currentWeight: 0,
   advantages: [],
   disadvantages: [],
@@ -62,16 +67,20 @@ export const CharacterSheet = () => {
   useEffect(() => {
     const basicLift = calculateBasicLift(character.ST);
     const damage = calculateDamage(character.ST);
+    const baseBasicSpeed = calculateBasicSpeed(character.DX, character.HT);
     
     setCharacter(prev => ({
       ...prev,
       basicLift,
       damageThrust: damage.thrust,
       damageSwing: damage.swing,
-      HP: prev.ST, // Default HP = ST, can be modified
-      Will: prev.IQ, // Default Will = IQ, can be modified
-      Per: prev.IQ, // Default Per = IQ, can be modified
-      FP: prev.HT, // Default FP = HT, can be modified
+      // Only set defaults if values haven't been customized
+      HP: prev.HP === prev.ST ? character.ST : prev.HP,
+      Will: prev.Will === prev.IQ ? character.IQ : prev.Will,
+      Per: prev.Per === prev.IQ ? character.IQ : prev.Per,
+      FP: prev.FP === prev.HT ? character.HT : prev.FP,
+      basicSpeed: prev.basicSpeed === calculateBasicSpeed(prev.DX, prev.HT) ? baseBasicSpeed : prev.basicSpeed,
+      basicMove: prev.basicMove === Math.floor(calculateBasicSpeed(prev.DX, prev.HT)) ? Math.floor(baseBasicSpeed) : prev.basicMove,
     }));
   }, [character.ST, character.DX, character.IQ, character.HT]);
 
@@ -105,7 +114,7 @@ export const CharacterSheet = () => {
           <div className="space-y-6">
             <BasicInfo character={character} updateCharacter={updateCharacter} />
             <Attributes character={character} updateCharacter={updateCharacter} />
-            <CombatStats character={character} />
+            <CombatStats character={character} updateCharacter={updateCharacter} />
           </div>
 
           {/* Middle Column */}

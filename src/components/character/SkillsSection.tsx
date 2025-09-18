@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trash2, Plus } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Trash2, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { calculateSkillLevel } from '@/utils/gurpsCalculations';
 
@@ -18,6 +19,8 @@ interface SkillsSectionProps {
 
 export const SkillsSection = ({ character, updateCharacter, predefinedOptions }: SkillsSectionProps) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [allExpanded, setAllExpanded] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [newSkill, setNewSkill] = useState<Partial<CharacterSkill>>({
     name: '',
     attribute: 'DX',
@@ -105,6 +108,20 @@ export const SkillsSection = ({ character, updateCharacter, predefinedOptions }:
 
   const totalCost = character.skills.reduce((sum, skill) => sum + skill.points, 0);
 
+  const toggleAllExpanded = () => {
+    const newState = !allExpanded;
+    setAllExpanded(newState);
+    const newExpandedItems: Record<string, boolean> = {};
+    character.skills.forEach(skill => {
+      newExpandedItems[skill.id] = newState;
+    });
+    setExpandedItems(newExpandedItems);
+  };
+
+  const toggleItemExpanded = (id: string) => {
+    setExpandedItems(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'E': return 'text-success';
@@ -123,8 +140,30 @@ export const SkillsSection = ({ character, updateCharacter, predefinedOptions }:
             <span className="text-2xl">🎯</span>
             Skills
           </div>
-          <div className="text-sm font-normal">
-            Total: <span className="text-accent font-bold">{totalCost}</span> pts
+          <div className="flex items-center gap-2">
+            {character.skills.length > 0 && (
+              <Button
+                onClick={toggleAllExpanded}
+                variant="ghost"
+                size="sm"
+                className="text-xs"
+              >
+                {allExpanded ? (
+                  <>
+                    <ChevronUp size={14} className="mr-1" />
+                    Collapse All
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={14} className="mr-1" />
+                    Expand All
+                  </>
+                )}
+              </Button>
+            )}
+            <div className="text-sm font-normal">
+              Total: <span className="text-accent font-bold">{totalCost}</span> pts
+            </div>
           </div>
         </CardTitle>
       </CardHeader>
@@ -136,83 +175,94 @@ export const SkillsSection = ({ character, updateCharacter, predefinedOptions }:
         )}
 
         {character.skills.map((skill) => (
-          <div key={skill.id} className="p-4 bg-muted/20 rounded-lg border border-border/30">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-2">
-              <Input
-                value={skill.name}
-                onChange={(e) => updateSkill(skill.id, { name: e.target.value })}
-                placeholder="Skill name"
-                className="font-medium md:col-span-2"
-              />
-              
-              <Select value={skill.attribute} onValueChange={(value: any) => updateSkill(skill.id, { attribute: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ST">ST</SelectItem>
-                  <SelectItem value="DX">DX</SelectItem>
-                  <SelectItem value="IQ">IQ</SelectItem>
-                  <SelectItem value="HT">HT</SelectItem>
-                  <SelectItem value="Will">Will</SelectItem>
-                  <SelectItem value="Per">Per</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={skill.difficulty} onValueChange={(value: any) => updateSkill(skill.id, { difficulty: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="E">Easy</SelectItem>
-                  <SelectItem value="A">Average</SelectItem>
-                  <SelectItem value="H">Hard</SelectItem>
-                  <SelectItem value="VH">Very Hard</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <div className="flex gap-2">
+          <Collapsible key={skill.id} open={expandedItems[skill.id] || false} onOpenChange={() => toggleItemExpanded(skill.id)}>
+            <div className="p-4 bg-muted/20 rounded-lg border border-border/30">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-2">
                 <Input
-                  type="number"
-                  value={skill.points}
-                  onChange={(e) => updateSkill(skill.id, { points: parseInt(e.target.value) || 0 })}
-                  placeholder="Pts"
-                  min="0"
-                  className="w-16"
+                  value={skill.name}
+                  onChange={(e) => updateSkill(skill.id, { name: e.target.value })}
+                  placeholder="Skill name"
+                  className="font-medium md:col-span-2"
                 />
-                <Button
-                  onClick={() => removeSkill(skill.id)}
-                  variant="outline"
-                  size="sm"
-                  className="text-destructive hover:text-destructive-foreground hover:bg-destructive"
-                >
-                  <Trash2 size={16} />
-                </Button>
-              </div>
-            </div>
+                
+                <Select value={skill.attribute} onValueChange={(value: any) => updateSkill(skill.id, { attribute: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ST">ST</SelectItem>
+                    <SelectItem value="DX">DX</SelectItem>
+                    <SelectItem value="IQ">IQ</SelectItem>
+                    <SelectItem value="HT">HT</SelectItem>
+                    <SelectItem value="Will">Will</SelectItem>
+                    <SelectItem value="Per">Per</SelectItem>
+                  </SelectContent>
+                </Select>
 
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-4 text-sm">
-                <span>Level: <span className="font-bold text-accent">{skill.level}</span></span>
-                <span>Relative: <span className="font-bold">{skill.relativeLevel}</span></span>
-                <span className={`font-bold ${getDifficultyColor(skill.difficulty)}`}>
-                  {skill.difficulty}
-                </span>
+                <Select value={skill.difficulty} onValueChange={(value: any) => updateSkill(skill.id, { difficulty: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="E">Easy</SelectItem>
+                    <SelectItem value="A">Average</SelectItem>
+                    <SelectItem value="H">Hard</SelectItem>
+                    <SelectItem value="VH">Very Hard</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    value={skill.points}
+                    onChange={(e) => updateSkill(skill.id, { points: parseInt(e.target.value) || 0 })}
+                    placeholder="Pts"
+                    min="0"
+                    className="w-16"
+                  />
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      {expandedItems[skill.id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </Button>
+                  </CollapsibleTrigger>
+                  <Button
+                    onClick={() => removeSkill(skill.id)}
+                    variant="outline"
+                    size="sm"
+                    className="text-destructive hover:text-destructive-foreground hover:bg-destructive"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
               </div>
+
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-4 text-sm">
+                  <span>Level: <span className="font-bold text-accent">{skill.level}</span></span>
+                  <span>Relative: <span className="font-bold">{skill.relativeLevel}</span></span>
+                  <span className={`font-bold ${getDifficultyColor(skill.difficulty)}`}>
+                    {skill.difficulty}
+                  </span>
+                </div>
+              </div>
+              
+              <CollapsibleContent>
+                <div className="space-y-2">
+                  {skill.description && (
+                    <p className="text-sm text-muted-foreground">{skill.description}</p>
+                  )}
+                  
+                  <Textarea
+                    value={skill.notes || ''}
+                    onChange={(e) => updateSkill(skill.id, { notes: e.target.value })}
+                    placeholder="Personal notes..."
+                    className="resize-none text-sm"
+                    rows={2}
+                  />
+                </div>
+              </CollapsibleContent>
             </div>
-            
-            {skill.description && (
-              <p className="text-sm text-muted-foreground mb-2">{skill.description}</p>
-            )}
-            
-            <Textarea
-              value={skill.notes || ''}
-              onChange={(e) => updateSkill(skill.id, { notes: e.target.value })}
-              placeholder="Personal notes..."
-              className="resize-none text-sm"
-              rows={2}
-            />
-          </div>
+          </Collapsible>
         ))}
 
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
