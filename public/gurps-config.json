@@ -1,0 +1,288 @@
+{
+  "advantages": [
+    {
+      "name": "Absolute Direction",
+      "cost": 5,
+      "description": "You always know which way is north, and you can retrace any path you have traveled."
+    },
+    {
+      "name": "Acute Hearing",
+      "cost": 2,
+      "description": "+1 to all Hearing rolls per level."
+    },
+    {
+      "name": "Acute Vision",
+      "cost": 2,
+      "description": "+1 to all Vision rolls per level."
+    },
+    {
+      "name": "Ambidexterity",
+      "cost": 5,
+      "description": "You can use both hands with equal skill."
+    },
+    {
+      "name": "Combat Reflexes",
+      "cost": 15,
+      "description": "+1 to all active defense rolls, +1 to Fast-Draw, +2 to Fright Checks."
+    },
+    {
+      "name": "Enhanced Dodge",
+      "cost": 15,
+      "description": "+1 to Dodge per level."
+    },
+    {
+      "name": "Enhanced Parry",
+      "cost": 5,
+      "description": "+1 to Parry with one weapon skill per level."
+    },
+    {
+      "name": "Extra Attack",
+      "cost": 25,
+      "description": "One extra attack per turn per level."
+    },
+    {
+      "name": "High Pain Threshold",
+      "cost": 10,
+      "description": "Never suffer shock penalties. +3 to resist torture or pain."
+    },
+    {
+      "name": "Luck",
+      "cost": 15,
+      "description": "Once per hour of play, you may reroll a single bad die roll."
+    },
+    {
+      "name": "Night Vision",
+      "cost": 1,
+      "description": "Reduce darkness penalties by 1 per level."
+    },
+    {
+      "name": "Rapid Healing",
+      "cost": 5,
+      "description": "You recover from injuries quickly. Heal at twice the normal rate."
+    },
+    {
+      "name": "Strong Will",
+      "cost": 4,
+      "description": "+1 to Will per level."
+    }
+  ],
+  "disadvantages": [
+    {
+      "name": "Absent-Minded",
+      "cost": -15,
+      "description": "You have trouble concentrating. Make an IQ roll to remember important details."
+    },
+    {
+      "name": "Bad Temper",
+      "cost": -10,
+      "description": "Make a self-control roll whenever you face stress. On a failure, you lose your temper."
+    },
+    {
+      "name": "Blindness",
+      "cost": -50,
+      "description": "You cannot see. -6 to most physical skills, but +3 to Hearing-based rolls."
+    },
+    {
+      "name": "Curious",
+      "cost": -5,
+      "description": "You are naturally curious and must investigate interesting things."
+    },
+    {
+      "name": "Deafness",
+      "cost": -20,
+      "description": "You cannot hear. Automatic failure on Hearing rolls."
+    },
+    {
+      "name": "Greed",
+      "cost": -15,
+      "description": "Make a self-control roll when you encounter wealth. On failure, you must pursue it."
+    },
+    {
+      "name": "Hard of Hearing",
+      "cost": -10,
+      "description": "-4 to all Hearing rolls."
+    },
+    {
+      "name": "Honesty",
+      "cost": -10,
+      "description": "You are naturally honest and law-abiding."
+    },
+    {
+      "name": "Impulsiveness",
+      "cost": -10,
+      "description": "You hate talk and delay. Make a self-control roll when you must wait or plan."
+    },
+    {
+      "name": "Lame",
+      "cost": -25,
+      "description": "One of your legs is crippled. Move at half speed, -3 to physical skills using legs."
+    },
+    {
+      "name": "Pacifism",
+      "cost": -15,
+      "description": "You will not harm innocent beings."
+    },
+    {
+      "name": "Phobia",
+      "cost": -5,
+      "description": "You have an unreasoning fear of a specific thing."
+    },
+    {
+      "name": "Poor Vision",
+      "cost": -25,
+      "description": "-6 to all Vision rolls and ranged attacks."
+    }
+  ],
+  "skills": [
+    {
+      "name": "Acrobatics",
+      "attribute": "DX",
+      "difficulty": "H",
+      "description": "The ability to perform gymnastic stunts, roll, fall safely, etc."
+    },
+    {
+      "name": "Administration",
+      "attribute": "IQ",
+      "difficulty": "A",
+      "description": "The ability to organize and run organizations, handle paperwork, etc."
+    },
+    {
+      "name": "Archaeology",
+      "attribute": "IQ",
+      "difficulty": "H",
+      "description": "The study of past cultures through their physical remains."
+    },
+    {
+      "name": "Brawling",
+      "attribute": "DX",
+      "difficulty": "E",
+      "description": "Skill at unarmed combat using punches, kicks, etc."
+    },
+    {
+      "name": "Climbing",
+      "attribute": "DX",
+      "difficulty": "A",
+      "description": "The ability to scale walls, cliffs, trees, etc."
+    },
+    {
+      "name": "Computer Operation",
+      "attribute": "IQ",
+      "difficulty": "E",
+      "description": "The ability to use computers and common software."
+    },
+    {
+      "name": "Cooking",
+      "attribute": "IQ",
+      "difficulty": "A",
+      "description": "The ability to prepare appetizing, nutritious meals."
+    },
+    {
+      "name": "Dancing",
+      "attribute": "DX",
+      "difficulty": "A",
+      "description": "The ability to dance well, including social and performance dancing."
+    },
+    {
+      "name": "Driving",
+      "attribute": "DX",
+      "difficulty": "A",
+      "description": "The ability to drive ground vehicles under normal conditions."
+    },
+    {
+      "name": "Fast-Draw",
+      "attribute": "DX",
+      "difficulty": "E",
+      "description": "The ability to quickly draw and ready a weapon."
+    },
+    {
+      "name": "First Aid",
+      "attribute": "IQ",
+      "difficulty": "E",
+      "description": "Basic medical care for injuries and illness."
+    },
+    {
+      "name": "Guns",
+      "attribute": "DX",
+      "difficulty": "E",
+      "description": "Skill with firearms of all types."
+    },
+    {
+      "name": "History",
+      "attribute": "IQ",
+      "difficulty": "H",
+      "description": "Knowledge of past events and their significance."
+    },
+    {
+      "name": "Intimidation",
+      "attribute": "Will",
+      "difficulty": "A",
+      "description": "The ability to use fear to influence others."
+    },
+    {
+      "name": "Jumping",
+      "attribute": "DX",
+      "difficulty": "E",
+      "description": "The ability to leap horizontally or vertically."
+    },
+    {
+      "name": "Leadership",
+      "attribute": "IQ",
+      "difficulty": "A",
+      "description": "The ability to lead and coordinate others."
+    },
+    {
+      "name": "Lockpicking",
+      "attribute": "IQ",
+      "difficulty": "A",
+      "description": "The ability to open locks without the proper key."
+    },
+    {
+      "name": "Melee Weapon",
+      "attribute": "DX",
+      "difficulty": "A",
+      "description": "Skill with hand weapons like swords, clubs, etc."
+    },
+    {
+      "name": "Observation",
+      "attribute": "Per",
+      "difficulty": "A",
+      "description": "The ability to spot important details in your environment."
+    },
+    {
+      "name": "Photography",
+      "attribute": "IQ",
+      "difficulty": "A",
+      "description": "The art and technique of taking good pictures."
+    },
+    {
+      "name": "Research",
+      "attribute": "IQ",
+      "difficulty": "A",
+      "description": "The ability to find information in libraries, databases, etc."
+    },
+    {
+      "name": "Riding",
+      "attribute": "DX",
+      "difficulty": "A",
+      "description": "The ability to ride horses and other animals."
+    },
+    {
+      "name": "Stealth",
+      "attribute": "DX",
+      "difficulty": "A",
+      "description": "The ability to move quietly and remain unseen."
+    },
+    {
+      "name": "Swimming",
+      "attribute": "HT",
+      "difficulty": "E",
+      "description": "The ability to move through water."
+    },
+    {
+      "name": "Throwing",
+      "attribute": "DX",
+      "difficulty": "A",
+      "description": "Skill at hurling objects accurately."
+    }
+  ]
+}
