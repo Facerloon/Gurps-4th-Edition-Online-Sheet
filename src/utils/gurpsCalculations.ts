@@ -100,9 +100,12 @@ export const calculateDodge = (character: Character): number => {
 
 // Calculate basic move
 export const calculateBasicMove = (character: Character): number => {
-  const baseMove = Math.floor(character.basicSpeed) + (character.basicMove - Math.floor(character.basicSpeed));
+  const baseBasicMove = Math.floor(character.basicSpeed);
+  const actualBasicMove = character.basicMove;
   const encumbrance = calculateEncumbrance(character);
-  return Math.floor(baseMove * (encumbrance.multiplier === 1 ? 1 : 
+  
+  // Apply encumbrance to the actual basic move
+  return Math.floor(actualBasicMove * (encumbrance.multiplier === 1 ? 1 : 
     encumbrance.multiplier === 2 ? 0.8 :
     encumbrance.multiplier === 3 ? 0.6 :
     encumbrance.multiplier === 6 ? 0.4 : 0.2));
@@ -119,7 +122,7 @@ export const calculateTotalPoints = (character: Character): number => {
   
   // Secondary characteristic costs
   const baseBasicSpeed = calculateBasicSpeed(character.DX, character.HT);
-  const baseBasicMove = Math.floor(baseBasicSpeed);
+  const baseBasicMove = Math.floor(character.basicSpeed); // Use actual basic speed, not calculated
   
   const secondaryCost = 
     (character.HP - character.ST) * 2 +
@@ -142,5 +145,15 @@ export const calculateTotalPoints = (character: Character): number => {
   // Skills cost
   const skillsCost = character.skills.reduce((sum, skill) => sum + skill.points, 0);
   
-  return attributeCost + secondaryCost + advantagesCost + disadvantagesCost + skillsCost;
+  // Social costs
+  const languagesCost = character.languages.reduce((sum, lang) => sum + lang.points, 0);
+  const statusCost = character.status.reduce((sum, status) => sum + status.points, 0);
+  const reputationCost = character.reputation.reduce((sum, rep) => sum + rep.points, 0);
+  const culturalFamiliaritiesCost = character.culturalFamiliarities.reduce((sum, cf) => sum + cf.points, 0);
+  const socialCost = languagesCost + statusCost + reputationCost + culturalFamiliaritiesCost;
+  
+  // Tech level cost
+  const techLevelCost = character.techLevelCost;
+  
+  return attributeCost + secondaryCost + advantagesCost + disadvantagesCost + skillsCost + socialCost + techLevelCost;
 };

@@ -129,6 +129,18 @@ export const BasicInfo = ({ character, updateCharacter }: BasicInfoProps) => {
         </div>
 
         <div>
+          <Label htmlFor="techLevelCost" className="text-card-foreground">Tech Level Cost</Label>
+          <Input
+            id="techLevelCost"
+            type="number"
+            value={character.techLevelCost}
+            onChange={(e) => handleInputChange('techLevelCost', parseInt(e.target.value) || 0)}
+            className="bg-input border-border focus:ring-accent"
+            placeholder="0"
+          />
+        </div>
+
+        <div>
           <Label htmlFor="appearance" className="text-card-foreground">Appearance</Label>
           <Textarea
             id="appearance"

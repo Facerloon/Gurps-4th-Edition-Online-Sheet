@@ -7,6 +7,7 @@ import { AdvantagesSection } from './character/AdvantagesSection';
 import { DisadvantagesSection } from './character/DisadvantagesSection';
 import { SkillsSection } from './character/SkillsSection';
 import { EncumbranceSection } from './character/EncumbranceSection';
+import { SocialSection } from './character/SocialSection';
 import { calculateBasicLift, calculateDamage, calculateTotalPoints, calculateBasicSpeed } from '@/utils/gurpsCalculations';
 
 const defaultCharacter: Character = {
@@ -19,7 +20,8 @@ const defaultCharacter: Character = {
   age: '',
   appearance: '',
   sizeModifier: 0,
-  techLevel: '',
+  techLevel: '3',
+  techLevelCost: 0,
   ST: 10,
   DX: 10,
   IQ: 10,
@@ -41,6 +43,10 @@ const defaultCharacter: Character = {
   disadvantages: [],
   skills: [],
   equipment: [],
+  languages: [],
+  status: [],
+  reputation: [],
+  culturalFamiliarities: [],
   reactionModifiers: []
 };
 
@@ -137,6 +143,10 @@ export const CharacterSheet = () => {
               character={character} 
               updateCharacter={updateCharacter}
               predefinedOptions={config.skills}
+            />
+            <SocialSection 
+              character={character} 
+              updateCharacter={updateCharacter}
             />
             <EncumbranceSection character={character} />
           </div>

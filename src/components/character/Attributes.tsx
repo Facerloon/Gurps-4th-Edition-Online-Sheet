@@ -43,10 +43,13 @@ export const Attributes = ({ character, updateCharacter }: AttributesProps) => {
         <Input
           type="number"
           value={value}
-          onChange={(e) => handleAttributeChange(attribute, parseInt(e.target.value) || 10)}
+          onChange={(e) => {
+            const newValue = Math.max(1, Math.min(30, parseInt(e.target.value) || 1));
+            handleAttributeChange(attribute, newValue);
+          }}
           className="bg-input border-border focus:ring-accent text-center text-xl font-bold"
           min="1"
-          max="20"
+          max="30"
         />
         <div className="text-xs text-muted-foreground mt-1 text-center">
           Cost: {cost > 0 ? `+${cost}` : cost} pts
@@ -95,7 +98,7 @@ export const Attributes = ({ character, updateCharacter }: AttributesProps) => {
   };
 
   const baseBasicSpeed = calculateBasicSpeed(character.DX, character.HT);
-  const baseBasicMove = Math.floor(baseBasicSpeed);
+  const baseBasicMove = Math.floor(character.basicSpeed); // Use actual basicSpeed for baseBasicMove
 
   const secondaryCosts = {
     HP: (character.HP - character.ST) * 2,

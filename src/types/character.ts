@@ -10,6 +10,7 @@ export interface Character {
   appearance: string;
   sizeModifier: number;
   techLevel: string;
+  techLevelCost: number;
 
   // Attributes
   ST: number; // Strength
@@ -45,6 +46,12 @@ export interface Character {
   disadvantages: CharacterDisadvantage[];
   skills: CharacterSkill[];
   equipment: Equipment[];
+  
+  // Social
+  languages: CharacterLanguage[];
+  status: CharacterStatus[];
+  reputation: CharacterReputation[];
+  culturalFamiliarities: CharacterCulturalFamiliarity[];
   
   // Reaction Modifiers
   reactionModifiers: ReactionModifier[];
@@ -93,6 +100,39 @@ export interface ReactionModifier {
   source: string;
   modifier: number;
   description: string;
+}
+
+export interface CharacterLanguage {
+  id: string;
+  name: string;
+  writtenLevel: 'None' | 'Broken' | 'Accented' | 'Native';
+  spokenLevel: 'None' | 'Broken' | 'Accented' | 'Native';
+  points: number;
+  notes?: string;
+}
+
+export interface CharacterStatus {
+  id: string;
+  level: number;
+  points: number;
+  description?: string;
+  notes?: string;
+}
+
+export interface CharacterReputation {
+  id: string;
+  description: string;
+  modifier: number;
+  scope: string;
+  points: number;
+  notes?: string;
+}
+
+export interface CharacterCulturalFamiliarity {
+  id: string;
+  name: string;
+  points: number;
+  notes?: string;
 }
 
 // Configuration types for predefined options
