@@ -44,12 +44,13 @@ export const Attributes = ({ character, updateCharacter }: AttributesProps) => {
           type="number"
           value={value}
           onChange={(e) => {
-            const newValue = Math.max(1, Math.min(30, parseInt(e.target.value) || 1));
+            const inputValue = parseInt(e.target.value);
+            const newValue = isNaN(inputValue) ? value : Math.max(1, Math.min(200, inputValue));
             handleAttributeChange(attribute, newValue);
           }}
           className="bg-input border-border focus:ring-accent text-center text-xl font-bold"
           min="1"
-          max="30"
+          max="200"
         />
         <div className="text-xs text-muted-foreground mt-1 text-center">
           Cost: {cost > 0 ? `+${cost}` : cost} pts
