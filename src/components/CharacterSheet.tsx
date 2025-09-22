@@ -8,7 +8,13 @@ import { DisadvantagesSection } from './character/DisadvantagesSection';
 import { SkillsSection } from './character/SkillsSection';
 import { EncumbranceSection } from './character/EncumbranceSection';
 import { SocialSection } from './character/SocialSection';
-import { calculateBasicLift, calculateDamage, calculateTotalPoints, calculateBasicSpeed, calculateSkillLevel } from '@/utils/gurpsCalculations';
+import {
+  calculateBasicLift,
+  calculateDamage,
+  calculateTotalPoints,
+  calculateBasicSpeed,
+  calculateSkillLevel,
+} from '@/utils/gurpsCalculations';
 
 const defaultCharacter: Character = {
   name: '',
@@ -47,12 +53,16 @@ const defaultCharacter: Character = {
   status: [],
   reputation: [],
   culturalFamiliarities: [],
-  reactionModifiers: []
+  reactionModifiers: [],
 };
 
 export const CharacterSheet = () => {
   const [character, setCharacter] = useState<Character>(defaultCharacter);
-  const [config, setConfig] = useState<GurpsConfig>({ advantages: [], disadvantages: [], skills: [] });
+  const [config, setConfig] = useState<GurpsConfig>({
+    advantages: [],
+    disadvantages: [],
+    skills: [],
+  });
 
   // Load configuration on component mount
   useEffect(() => {
@@ -65,7 +75,7 @@ export const CharacterSheet = () => {
         console.error('Failed to load GURPS configuration:', error);
       }
     };
-    
+
     loadConfig();
   }, []);
 
@@ -73,44 +83,107 @@ export const CharacterSheet = () => {
   useEffect(() => {
     const basicLift = calculateBasicLift(character.ST);
     const baseBasicSpeed = calculateBasicSpeed(character.DX, character.HT);
-    
-    setCharacter(prev => ({
-      ...prev,
-      basicLift,
-      // Only set defaults if values haven't been customized
-      HP: prev.HP === prev.ST ? character.ST : prev.HP,
-      Will: prev.Will === prev.IQ ? character.IQ : prev.Will,
-      Per: prev.Per === prev.IQ ? character.IQ : prev.Per,
-      FP: prev.FP === prev.HT ? character.HT : prev.FP,
-      basicSpeed: prev.basicSpeed === calculateBasicSpeed(prev.DX, prev.HT) ? baseBasicSpeed : prev.basicSpeed,
-      basicMove: prev.basicMove === Math.floor(calculateBasicSpeed(prev.DX, prev.HT)) ? Math.floor(baseBasicSpeed) : prev.basicMove,
-    }));
+    const baseHP = character.ST;
+    const baseWill = character.IQ;
+    const basePer = character.IQ;
+    const baseFP = character.HT;
+    const baseBasicMove = Math.floor(baseBasicSpeed);
+
+    // Solo actualiza si los secundarios están sincronizados con los primarios
+    // (es decir, si el usuario NO los personalizó)
+    let needsUpdate = false;
+    const updates: Partial<Character> = {};
+
+    if (character.basicLift !== basicLift) {
+      updates.basicLift = basicLift;
+      needsUpdate = true;
+    }
+    if (character.HP === character.ST && character.HP !== baseHP) {
+      updates.HP = baseHP;
+      needsUpdate = true;
+    }
+    if (character.Will === character.IQ && character.Will !== baseWill) {
+      updates.Will = baseWill;
+      needsUpdate = true;
+    }
+    if (character.Per === character.IQ && character.Per !== basePer) {
+      updates.Per = basePer;
+      needsUpdate = true;
+    }
+    if (character.FP === character.HT && character.FP !== baseFP) {
+      updates.FP = baseFP;
+      needsUpdate = true;
+    }
+    if (
+      character.basicSpeed ===
+        calculateBasicSpeed(character.DX, character.HT) &&
+      character.basicSpeed !== baseBasicSpeed
+    ) {
+      updates.basicSpeed = baseBasicSpeed;
+      needsUpdate = true;
+    }
+    if (
+      character.basicMove ===
+        Math.floor(calculateBasicSpeed(character.DX, character.HT)) &&
+      character.basicMove !== baseBasicMove
+    ) {
+      updates.basicMove = baseBasicMove;
+      needsUpdate = true;
+    }
+
+    if (needsUpdate) {
+      setCharacter((prev) => ({
+        ...prev,
+        ...updates,
+      }));
+    }
   }, [character.ST, character.DX, character.IQ, character.HT]);
 
   // Recalculate skills when attributes change
   useEffect(() => {
     if (character.skills.length > 0) {
-      const updatedSkills = character.skills.map(skill => {
+      const updatedSkills = character.skills.map((skill) => {
         const { level, relativeLevel } = calculateSkillLevel(skill, character);
         return { ...skill, level: level + skill.modifier, relativeLevel };
       });
-      setCharacter(prev => ({ ...prev, skills: updatedSkills }));
+
+      // Solo actualiza si hay algún cambio real en los skills
+      const isDifferent = character.skills.some((skill, idx) => {
+        return (
+          skill.level !== updatedSkills[idx].level ||
+          skill.relativeLevel !== updatedSkills[idx].relativeLevel
+        );
+      });
+
+      if (isDifferent) {
+        setCharacter((prev) => ({ ...prev, skills: updatedSkills }));
+      }
     }
-  }, [character.ST, character.DX, character.IQ, character.HT, character.Will, character.Per]);
+  }, [
+    character.ST,
+    character.DX,
+    character.IQ,
+    character.HT,
+    character.Will,
+    character.Per,
+    character.skills,
+  ]);
 
   // Calculate unspent points
   useEffect(() => {
     const totalSpent = calculateTotalPoints(character);
     const unspent = character.pointTotal - totalSpent;
-    
-    setCharacter(prev => ({
-      ...prev,
-      unspentPoints: unspent
-    }));
+
+    if (character.unspentPoints !== unspent) {
+      setCharacter((prev) => ({
+        ...prev,
+        unspentPoints: unspent,
+      }));
+    }
   }, [character]);
 
   const updateCharacter = (updates: Partial<Character>) => {
-    setCharacter(prev => ({ ...prev, ...updates }));
+    setCharacter((prev) => ({ ...prev, ...updates }));
   };
 
   return (
@@ -118,28 +191,41 @@ export const CharacterSheet = () => {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gradient mb-2">GURPS Character Sheet</h1>
-          <p className="text-muted-foreground text-lg">4th Edition Digital Character Creator</p>
+          <h1 className="text-4xl font-bold text-gradient mb-2">
+            GURPS Character Sheet
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            4th Edition Digital Character Creator
+          </p>
         </div>
 
         {/* Main Layout */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 max-w-none">
           {/* Left Column */}
           <div className="space-y-6">
-            <BasicInfo character={character} updateCharacter={updateCharacter} />
-            <Attributes character={character} updateCharacter={updateCharacter} />
-            <CombatStats character={character} updateCharacter={updateCharacter} />
+            <BasicInfo
+              character={character}
+              updateCharacter={updateCharacter}
+            />
+            <Attributes
+              character={character}
+              updateCharacter={updateCharacter}
+            />
+            <CombatStats
+              character={character}
+              updateCharacter={updateCharacter}
+            />
           </div>
 
           {/* Middle Column */}
           <div className="space-y-6">
-            <SocialSection 
-              character={character} 
+            <SocialSection
+              character={character}
               updateCharacter={updateCharacter}
             />
             <EncumbranceSection character={character} />
-            <AdvantagesSection 
-              character={character} 
+            <AdvantagesSection
+              character={character}
               updateCharacter={updateCharacter}
               predefinedOptions={config.advantages}
             />
@@ -147,13 +233,13 @@ export const CharacterSheet = () => {
 
           {/* Right Column */}
           <div className="space-y-6">
-            <DisadvantagesSection 
-              character={character} 
+            <DisadvantagesSection
+              character={character}
               updateCharacter={updateCharacter}
               predefinedOptions={config.disadvantages}
             />
-            <SkillsSection 
-              character={character} 
+            <SkillsSection
+              character={character}
               updateCharacter={updateCharacter}
               predefinedOptions={config.skills}
             />
