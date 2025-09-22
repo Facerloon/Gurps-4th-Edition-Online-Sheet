@@ -43,6 +43,7 @@ export const SkillsSection = ({ character, updateCharacter, predefinedOptions }:
       points: newSkill.points || 1,
       level: 10,
       relativeLevel: '',
+      modifier: 0,
       description: newSkill.description || '',
       notes: newSkill.notes || ''
     };
@@ -243,6 +244,16 @@ export const SkillsSection = ({ character, updateCharacter, predefinedOptions }:
                   <span className={`font-bold ${getDifficultyColor(skill.difficulty)}`}>
                     {skill.difficulty}
                   </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs">Modifier:</Label>
+                  <Input
+                    type="number"
+                    value={skill.modifier || 0}
+                    onChange={(e) => updateSkill(skill.id, { modifier: parseInt(e.target.value) || 0 })}
+                    className="w-16 h-6 text-xs text-center"
+                    placeholder="0"
+                  />
                 </div>
               </div>
               

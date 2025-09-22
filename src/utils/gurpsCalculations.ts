@@ -33,28 +33,31 @@ export const calculateSkillLevel = (
   character: Character
 ): { level: number; relativeLevel: string } => {
   const baseAttribute = getAttributeValue(skill.attribute, character);
-  let level = baseAttribute;
   
   // Calculate level based on difficulty and points
   const difficultyModifier = getDifficultyModifier(skill.difficulty);
+  let baseLevel = baseAttribute;
   
   if (skill.points === 0) {
-    level = baseAttribute + difficultyModifier;
+    baseLevel = baseAttribute + difficultyModifier;
   } else if (skill.points === 1) {
-    level = baseAttribute + difficultyModifier;
+    baseLevel = baseAttribute + difficultyModifier;
   } else if (skill.points === 2) {
-    level = baseAttribute + difficultyModifier + 1;
+    baseLevel = baseAttribute + difficultyModifier + 1;
   } else if (skill.points === 4) {
-    level = baseAttribute + difficultyModifier + 2;
+    baseLevel = baseAttribute + difficultyModifier + 2;
   } else if (skill.points >= 8) {
     const extraLevels = Math.floor(Math.log2(skill.points / 4));
-    level = baseAttribute + difficultyModifier + 2 + extraLevels;
+    baseLevel = baseAttribute + difficultyModifier + 2 + extraLevels;
   }
   
-  const relativeDifference = level - baseAttribute;
+  // Apply custom modifier to final level
+  const finalLevel = baseLevel + (skill.modifier || 0);
+  
+  const relativeDifference = finalLevel - baseAttribute;
   const relativeLevel = `${skill.attribute}${relativeDifference >= 0 ? '+' : ''}${relativeDifference}`;
   
-  return { level, relativeLevel };
+  return { level: finalLevel, relativeLevel };
 };
 
 const getAttributeValue = (attribute: string, character: Character): number => {

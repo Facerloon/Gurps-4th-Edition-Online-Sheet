@@ -2,6 +2,7 @@ import { Character } from '@/types/character';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { calculateDodge, calculateBasicMove } from '@/utils/gurpsCalculations';
 
 interface CombatStatsProps {
@@ -44,16 +45,26 @@ export const CombatStats = ({ character, updateCharacter }: CombatStatsProps) =>
         <div>
           <h3 className="text-lg font-semibold text-card-foreground mb-3">Damage</h3>
           <div className="grid grid-cols-2 gap-4">
-            <StatDisplay
-              label="Thrust"
-              value={character.damageThrust}
-              description="Punching, stabbing"
-            />
-            <StatDisplay
-              label="Swing"
-              value={character.damageSwing}
-              description="Cutting weapons"
-            />
+            <div className="space-y-2">
+              <Label className="text-card-foreground">Thrust</Label>
+              <textarea
+                value={character.damageThrust}
+                onChange={(e) => updateCharacter({ damageThrust: e.target.value })}
+                className="w-full h-16 px-3 py-2 bg-input border border-border rounded-md text-center font-mono resize-none"
+                placeholder="1d-2"
+              />
+              <div className="text-xs text-muted-foreground text-center">Punching, stabbing</div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-card-foreground">Swing</Label>
+              <textarea
+                value={character.damageSwing}
+                onChange={(e) => updateCharacter({ damageSwing: e.target.value })}
+                className="w-full h-16 px-3 py-2 bg-input border border-border rounded-md text-center font-mono resize-none"
+                placeholder="1d"
+              />
+              <div className="text-xs text-muted-foreground text-center">Cutting weapons</div>
+            </div>
           </div>
         </div>
 

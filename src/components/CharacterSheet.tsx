@@ -8,7 +8,7 @@ import { DisadvantagesSection } from './character/DisadvantagesSection';
 import { SkillsSection } from './character/SkillsSection';
 import { EncumbranceSection } from './character/EncumbranceSection';
 import { SocialSection } from './character/SocialSection';
-import { calculateBasicLift, calculateDamage, calculateTotalPoints, calculateBasicSpeed } from '@/utils/gurpsCalculations';
+import { calculateBasicLift, calculateDamage, calculateTotalPoints, calculateBasicSpeed, calculateSkillLevel } from '@/utils/gurpsCalculations';
 
 const defaultCharacter: Character = {
   name: '',
@@ -72,14 +72,11 @@ export const CharacterSheet = () => {
   // Update derived stats when base attributes change
   useEffect(() => {
     const basicLift = calculateBasicLift(character.ST);
-    const damage = calculateDamage(character.ST);
     const baseBasicSpeed = calculateBasicSpeed(character.DX, character.HT);
     
     setCharacter(prev => ({
       ...prev,
       basicLift,
-      damageThrust: damage.thrust,
-      damageSwing: damage.swing,
       // Only set defaults if values haven't been customized
       HP: prev.HP === prev.ST ? character.ST : prev.HP,
       Will: prev.Will === prev.IQ ? character.IQ : prev.Will,
@@ -89,6 +86,17 @@ export const CharacterSheet = () => {
       basicMove: prev.basicMove === Math.floor(calculateBasicSpeed(prev.DX, prev.HT)) ? Math.floor(baseBasicSpeed) : prev.basicMove,
     }));
   }, [character.ST, character.DX, character.IQ, character.HT]);
+
+  // Recalculate skills when attributes change
+  useEffect(() => {
+    if (character.skills.length > 0) {
+      const updatedSkills = character.skills.map(skill => {
+        const { level, relativeLevel } = calculateSkillLevel(skill, character);
+        return { ...skill, level: level + skill.modifier, relativeLevel };
+      });
+      setCharacter(prev => ({ ...prev, skills: updatedSkills }));
+    }
+  }, [character.ST, character.DX, character.IQ, character.HT, character.Will, character.Per]);
 
   // Calculate unspent points
   useEffect(() => {
@@ -115,7 +123,7 @@ export const CharacterSheet = () => {
         </div>
 
         {/* Main Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 max-w-none">
           {/* Left Column */}
           <div className="space-y-6">
             <BasicInfo character={character} updateCharacter={updateCharacter} />
@@ -125,30 +133,30 @@ export const CharacterSheet = () => {
 
           {/* Middle Column */}
           <div className="space-y-6">
-            <AdvantagesSection 
-              character={character} 
-              updateCharacter={updateCharacter}
-              predefinedOptions={config.advantages}
-            />
-            <DisadvantagesSection 
-              character={character} 
-              updateCharacter={updateCharacter}
-              predefinedOptions={config.disadvantages}
-            />
-          </div>
-
-          {/* Right Column */}
-          <div className="space-y-6">
-            <SkillsSection 
-              character={character} 
-              updateCharacter={updateCharacter}
-              predefinedOptions={config.skills}
-            />
             <SocialSection 
               character={character} 
               updateCharacter={updateCharacter}
             />
             <EncumbranceSection character={character} />
+            <AdvantagesSection 
+              character={character} 
+              updateCharacter={updateCharacter}
+              predefinedOptions={config.advantages}
+            />
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-6">
+            <DisadvantagesSection 
+              character={character} 
+              updateCharacter={updateCharacter}
+              predefinedOptions={config.disadvantages}
+            />
+            <SkillsSection 
+              character={character} 
+              updateCharacter={updateCharacter}
+              predefinedOptions={config.skills}
+            />
           </div>
         </div>
       </div>

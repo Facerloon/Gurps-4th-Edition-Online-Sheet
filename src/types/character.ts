@@ -82,6 +82,7 @@ export interface CharacterSkill {
   points: number;
   level: number;
   relativeLevel: string; // e.g., "DX+1", "IQ-2"
+  modifier: number; // Custom modifier to final skill level
   description?: string;
   notes?: string;
 }
