@@ -9,6 +9,11 @@ import { SkillsSection } from './character/SkillsSection';
 import { EncumbranceSection } from './character/EncumbranceSection';
 import { SocialSection } from './character/SocialSection';
 import { SaveLoadSection } from './character/SaveLoadSection';
+import { EquipmentSimpleSection } from './character/EquipmentSimpleSection';
+import { SpellsSection } from './character/SpellsSection';
+import { CampaignLoreSection } from './character/CampaignLoreSection';
+import { CharacterNavigation, type SectionKey } from './character/CharacterNavigation';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import {
   calculateBasicLift,
   calculateDamage,
@@ -50,15 +55,19 @@ const defaultCharacter: Character = {
   disadvantages: [],
   skills: [],
   equipment: [],
+  spells: [],
   languages: [],
   status: [],
   reputation: [],
   culturalFamiliarities: [],
   reactionModifiers: [],
+  equipmentSimple: [],
+  campaignLore: '',
 };
 
 export const CharacterSheet = () => {
   const [character, setCharacter] = useState<Character>(defaultCharacter);
+  const [activeSection, setActiveSection] = useState<SectionKey>('primary');
   const [config, setConfig] = useState<GurpsConfig>({
     advantages: [],
     disadvantages: [],
@@ -191,74 +200,113 @@ export const CharacterSheet = () => {
     setCharacter(newCharacter);
   };
 
-  return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gradient mb-2">
-            GURPS Character Sheet
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            4th Edition Digital Character Creator
-          </p>
-        </div>
-
-        {/* Save/Load Section */}
-        <div className="max-w-md mx-auto mb-6">
-          <SaveLoadSection
-            character={character}
-            onLoadCharacter={handleLoadCharacter}
-          />
-        </div>
-
-        {/* Main Layout */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 max-w-none">
-          {/* Left Column */}
-          <div className="space-y-6">
-            <BasicInfo
-              character={character}
-              updateCharacter={updateCharacter}
-            />
-            <Attributes
-              character={character}
-              updateCharacter={updateCharacter}
-            />
-            <CombatStats
-              character={character}
-              updateCharacter={updateCharacter}
-            />
+  const renderActiveSection = () => {
+    switch (activeSection) {
+      case 'primary':
+        return (
+          <div className="space-y-8">
+            <BasicInfo character={character} updateCharacter={updateCharacter} />
+            <SocialSection character={character} updateCharacter={updateCharacter} />
           </div>
-
-          {/* Middle Column */}
-          <div className="space-y-6">
-            <SocialSection
-              character={character}
-              updateCharacter={updateCharacter}
-            />
+        );
+      case 'attributes':
+        return (
+          <div className="space-y-8">
+            <Attributes character={character} updateCharacter={updateCharacter} />
             <EncumbranceSection character={character} />
-            <AdvantagesSection
-              character={character}
-              updateCharacter={updateCharacter}
-              predefinedOptions={config.advantages}
-            />
+            <CombatStats character={character} updateCharacter={updateCharacter} />
           </div>
+        );
+      case 'advantages':
+        return (
+          <AdvantagesSection
+            character={character}
+            updateCharacter={updateCharacter}
+            predefinedOptions={config.advantages}
+          />
+        );
+      case 'disadvantages':
+        return (
+          <DisadvantagesSection
+            character={character}
+            updateCharacter={updateCharacter}
+            predefinedOptions={config.disadvantages}
+          />
+        );
+      case 'skills':
+        return (
+          <SkillsSection
+            character={character}
+            updateCharacter={updateCharacter}
+            predefinedOptions={config.skills}
+          />
+        );
+      case 'equipment':
+        return (
+          <EquipmentSimpleSection
+            character={character}
+            updateCharacter={updateCharacter}
+          />
+        );
+      case 'spells':
+        return (
+          <SpellsSection
+            character={character}
+            updateCharacter={updateCharacter}
+          />
+        );
+      case 'campaign':
+        return (
+          <CampaignLoreSection
+            character={character}
+            updateCharacter={updateCharacter}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
-          {/* Right Column */}
-          <div className="space-y-6">
-            <DisadvantagesSection
-              character={character}
-              updateCharacter={updateCharacter}
-              predefinedOptions={config.disadvantages}
-            />
-            <SkillsSection
-              character={character}
-              updateCharacter={updateCharacter}
-              predefinedOptions={config.skills}
-            />
-          </div>
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <CharacterNavigation
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
+        />
+        
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <header className="border-b border-border bg-card p-4">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger />
+              <div className="flex-1 text-center">
+                <h1 className="text-3xl font-bold text-gradient">
+                  GURPS Character Sheet
+                </h1>
+                <p className="text-muted-foreground">
+                  4th Edition Digital Character Creator
+                </p>
+              </div>
+            </div>
+            
+            {/* Save/Load Section */}
+            <div className="mt-4 flex justify-center">
+              <SaveLoadSection
+                character={character}
+                onLoadCharacter={handleLoadCharacter}
+              />
+            </div>
+          </header>
+
+          {/* Main Content */}
+          <main className="flex-1 p-6 overflow-auto">
+            <div className="max-w-6xl mx-auto">
+              {renderActiveSection()}
+            </div>
+          </main>
         </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };

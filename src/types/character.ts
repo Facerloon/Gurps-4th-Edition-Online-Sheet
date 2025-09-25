@@ -46,6 +46,7 @@ export interface Character {
   disadvantages: CharacterDisadvantage[];
   skills: CharacterSkill[];
   equipment: Equipment[];
+  spells: CharacterSpell[];
   
   // Social
   languages: CharacterLanguage[];
@@ -55,6 +56,10 @@ export interface Character {
   
   // Reaction Modifiers
   reactionModifiers: ReactionModifier[];
+  
+  // New sections
+  equipmentSimple: string[];
+  campaignLore: string;
 }
 
 export interface CharacterAdvantage {
@@ -134,6 +139,19 @@ export interface CharacterCulturalFamiliarity {
   name: string;
   points: number;
   notes?: string;
+}
+
+export interface CharacterSpell {
+  id: string;
+  name: string;
+  class: string; // College/Class of magic
+  skillLevel: number;
+  timeToCast: string;
+  duration: string;
+  costToCast: string;
+  costToMaintain: string;
+  notes?: string;
+  page?: string;
 }
 
 // Configuration types for predefined options

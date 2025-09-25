@@ -37,7 +37,8 @@ export const saveCharacterAsCSV = (character: Character, filename?: string): voi
     'sizeModifier', 'techLevel', 'techLevelCost', 'ST', 'DX', 'IQ', 'HT', 'HP', 'Will', 'Per', 'FP',
     'basicSpeed', 'basicMove', 'basicLift', 'damageThrust', 'damageSwing', 'dodgeModifier',
     'parryModifier', 'blockModifier', 'currentWeight', 'advantages', 'disadvantages', 'skills',
-    'equipment', 'languages', 'status', 'reputation', 'culturalFamiliarities', 'reactionModifiers'
+    'equipment', 'spells', 'languages', 'status', 'reputation', 'culturalFamiliarities', 'reactionModifiers',
+    'equipmentSimple', 'campaignLore'
   ];
 
   const values = [
@@ -48,8 +49,9 @@ export const saveCharacterAsCSV = (character: Character, filename?: string): voi
     character.basicSpeed, character.basicMove, character.basicLift, character.damageThrust, character.damageSwing,
     character.dodgeModifier, character.parryModifier, character.blockModifier, character.currentWeight,
     arrayToString(character.advantages), arrayToString(character.disadvantages), arrayToString(character.skills),
-    arrayToString(character.equipment), arrayToString(character.languages), arrayToString(character.status),
-    arrayToString(character.reputation), arrayToString(character.culturalFamiliarities), arrayToString(character.reactionModifiers)
+    arrayToString(character.equipment), arrayToString(character.spells), arrayToString(character.languages), 
+    arrayToString(character.status), arrayToString(character.reputation), arrayToString(character.culturalFamiliarities), 
+    arrayToString(character.reactionModifiers), character.equipmentSimple.join('|'), character.campaignLore
   ];
 
   const csvContent = [headers.join(','), values.map(v => `"${v}"`).join(',')].join('\n');
@@ -122,8 +124,12 @@ export const loadCharacterFromCSV = async (file: File): Promise<Character> => {
           const value = values[index];
           
           // Handle array fields
-          if (['advantages', 'disadvantages', 'skills', 'equipment', 'languages', 'status', 'reputation', 'culturalFamiliarities', 'reactionModifiers'].includes(header)) {
+          if (['advantages', 'disadvantages', 'skills', 'equipment', 'spells', 'languages', 'status', 'reputation', 'culturalFamiliarities', 'reactionModifiers'].includes(header)) {
             data[header] = stringToArray(value);
+          } else if (header === 'equipmentSimple') {
+            data[header] = value ? value.split('|') : [];
+          } else if (header === 'campaignLore') {
+            data[header] = value || '';
           } else {
             // Try to parse numbers
             const numValue = Number(value);
@@ -177,11 +183,14 @@ export const validateCharacterData = (data: any): Character => {
     disadvantages: [],
     skills: [],
     equipment: [],
+    spells: [],
     languages: [],
     status: [],
     reputation: [],
     culturalFamiliarities: [],
     reactionModifiers: [],
+    equipmentSimple: [],
+    campaignLore: '',
   };
 
   // Merge with defaults, ensuring all required fields exist
@@ -200,11 +209,20 @@ export const validateCharacterData = (data: any): Character => {
   character.disadvantages = ensureArrayWithIds(character.disadvantages);
   character.skills = ensureArrayWithIds(character.skills);
   character.equipment = ensureArrayWithIds(character.equipment);
+  character.spells = ensureArrayWithIds(character.spells);
   character.languages = ensureArrayWithIds(character.languages);
   character.status = ensureArrayWithIds(character.status);
   character.reputation = ensureArrayWithIds(character.reputation);
   character.culturalFamiliarities = ensureArrayWithIds(character.culturalFamiliarities);
   character.reactionModifiers = ensureArrayWithIds(character.reactionModifiers);
+  
+  // Ensure simple arrays are arrays
+  if (!Array.isArray(character.equipmentSimple)) {
+    character.equipmentSimple = [];
+  }
+  if (typeof character.campaignLore !== 'string') {
+    character.campaignLore = '';
+  }
 
   return character;
 };
