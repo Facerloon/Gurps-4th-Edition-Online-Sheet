@@ -8,6 +8,7 @@ import { DisadvantagesSection } from './character/DisadvantagesSection';
 import { SkillsSection } from './character/SkillsSection';
 import { EncumbranceSection } from './character/EncumbranceSection';
 import { SocialSection } from './character/SocialSection';
+import { SaveLoadSection } from './character/SaveLoadSection';
 import {
   calculateBasicLift,
   calculateDamage,
@@ -186,6 +187,10 @@ export const CharacterSheet = () => {
     setCharacter((prev) => ({ ...prev, ...updates }));
   };
 
+  const handleLoadCharacter = (newCharacter: Character) => {
+    setCharacter(newCharacter);
+  };
+
   return (
     <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -197,6 +202,14 @@ export const CharacterSheet = () => {
           <p className="text-muted-foreground text-lg">
             4th Edition Digital Character Creator
           </p>
+        </div>
+
+        {/* Save/Load Section */}
+        <div className="max-w-md mx-auto mb-6">
+          <SaveLoadSection
+            character={character}
+            onLoadCharacter={handleLoadCharacter}
+          />
         </div>
 
         {/* Main Layout */}
