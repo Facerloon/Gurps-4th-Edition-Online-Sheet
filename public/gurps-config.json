@@ -6,11 +6,6 @@
       "description": "You always know which way is north, and you can retrace any path you have traveled."
     },
     {
-      "name": "Acute Hearing",
-      "cost": 2,
-      "description": "+1 to all Hearing rolls per level."
-    },
-    {
       "name": "Acute Vision",
       "cost": 2,
       "description": "+1 to all Vision rolls per level."
