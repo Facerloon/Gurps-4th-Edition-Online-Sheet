@@ -5,6 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  base: '/gurps-4th-edition-online-sheet/',
   server: {
     host: "::",
     port: 8080,
