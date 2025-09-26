@@ -12,7 +12,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
-  "homepage": "https://facerloon.github.io/gurps-4th-edition-online-sheet",
+  "homepage": "https://facerloon.github.io/Gurps-4th-Edition-Online-Sheet",
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.11",
