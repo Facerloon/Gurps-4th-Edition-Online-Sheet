@@ -1,14 +1,29 @@
 {
   "advantages": [
     {
+      "name": "360° Vision",
+      "cost": 25,
+      "description": "You have no penalty to defend against attacks from the sides or rear. +5 to detect Shadowing attempts."
+    },
+    {
       "name": "Absolute Direction",
       "cost": 5,
       "description": "You always know which way is north, and you can retrace any path you have traveled."
     },
     {
-      "name": "Acute Vision",
+      "name": "Absolute Timing",
+      "cost": 2,
+      "description": "You always know what time it is, with a precision equal to the best personal timepieces widely available in your culture"
+    },
+    {
+      "name": "Acute Sense (Specify)",
       "cost": 2,
       "description": "+1 to all Vision rolls per level."
+    },
+    {
+      "name": "Affliction",
+      "cost": 10,
+      "description": "You have an attack that causes a baneful, nondamaging effect"
     },
     {
       "name": "Ambidexterity",
